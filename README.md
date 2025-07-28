@@ -12,6 +12,9 @@ This solution provisions the following infrastructure on Azure:
 - **Azure Front Door** with HTTPS and WAF rules
 - **Self-signed or managed certificate** for TLS encryption
 
+- ![DGE-grafana-](https://github.com/user-attachments/assets/cc590342-869c-4f3b-aa9a-5bead42617ed)
+
+
 ## 🔧 Prerequisites
 
 Before you begin, ensure you have the following installed and configured:
