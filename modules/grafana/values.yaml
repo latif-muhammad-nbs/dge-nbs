@@ -1,9 +1,8 @@
-# You can customize Grafana settings here
 adminUser: admin
-adminPassword: yourSecurePassword # Change this to a secure, dynamically generated password or use Azure Key Vault
+adminPassword: yourSecurePassword 
 service:
-  type: LoadBalancer # This will provision an Azure Load Balancer and assign a public IP
+  type: LoadBalancer 
   port: 80
-  targetPort: 3000 # Default Grafana port
+  targetPort: 3000 
 ingress:
-  enabled: false # Disable Ingress if Front Door will directly access the LoadBalancer IP
+  enabled: false 

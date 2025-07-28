@@ -25,6 +25,20 @@ variable "origin_ip" {
   type        = string
 }
 
+variable "origin_host_name" {
+  description = "The host header sent to the backend (e.g., same as origin_ip or a custom domain)."
+  type        = string
+}
+
+variable "origin_path" {
+  description = "The path to use for health probes or origin route path."
+  type        = string
+  default     = "/"
+}
+
+
+
+
 # Optional: Variables for WAF policy, custom HTTPS, etc.
 /*
 variable "waf_policy_mode" {

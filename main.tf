@@ -3,16 +3,18 @@ provider "azurerm" {
   features {}
 }
 
-# Configure the Kubernetes Provider (will depend on AKS output)
+# Aliased Kubernetes Provider (for AKS)
 provider "kubernetes" {
+  alias                  = "aks"
   host                   = module.aks.kube_config.host
   client_certificate     = base64decode(module.aks.kube_config.client_certificate)
   client_key             = base64decode(module.aks.kube_config.client_key)
   cluster_ca_certificate = base64decode(module.aks.kube_config.cluster_ca_certificate)
 }
 
-# Configure the Helm Provider (will depend on AKS output)
+# Aliased Helm Provider (for AKS)
 provider "helm" {
+  alias = "aks"
   kubernetes {
     host                   = module.aks.kube_config.host
     client_certificate     = base64decode(module.aks.kube_config.client_certificate)
@@ -33,19 +35,23 @@ module "network" {
   resource_group_name = azurerm_resource_group.main.name
   location            = azurerm_resource_group.main.location
   vnet_name           = "aks-vnet"
-  address_space       = ["10.0.0.0/16"]
-  subnet_prefixes     = ["10.0.0.0/24", "10.0.1.0/24"] # Example for AKS and other workloads
-  subnet_names        = ["aks-subnet", "app-subnet"]
+  address_space       = ["10.99.0.0/16"]
+  subnet_prefixes     = ["10.99.0.0/24","10.99.20.0/22"]
+  subnet_names        = ["aks-subnet","app-subnet"]
+ 
 }
 
 # Module: AKS
 module "aks" {
-  source              = "./modules/aks"
-  resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
+  source                  = "./modules/aks"
+  resource_group_name     = azurerm_resource_group.main.name
+  location                = azurerm_resource_group.main.location
   kubernetes_cluster_name = var.kubernetes_cluster_name
-  vnet_subnet_id      = module.network.subnet_ids["aks-subnet"]
-  // ... other AKS specific variables (node pools, AAD integration, etc.)
+  kubernetes_version      = var.kubernetes_version
+  dns_prefix              = var.dns_prefix
+  vnet_subnet_id          = module.network.subnet_ids["aks-subnet"]
+  agent_vm_size           = "Standard_D2s_v3"
+  
 }
 
 output "kube_config" {
@@ -53,20 +59,26 @@ output "kube_config" {
   sensitive = true
 }
 
-# Module: Grafana
+# Module: Grafana (uses Kubernetes and Helm)
 module "grafana" {
-  source              = "./modules/grafana"
+  source               = "./modules/grafana"
   kubernetes_namespace = "monitoring"
-  # You might need to pass the KubeConfig from the AKS module if not using the default provider setup
+  providers = {
+    kubernetes = kubernetes.aks
+    helm       = helm.aks
+  }
+  
 }
 
-
-# Module: Front Door
+# Module: Front Door (does not use Kubernetes/Helm)
 module "frontdoor" {
   source              = "./modules/frontdoor"
   resource_group_name = azurerm_resource_group.main.name
-  location            = azurerm_resource_group.main.location
-  frontdoor_name      = var.frontdoor_name
+  frontdoor_name      = "grafana-frontdoor"
+  origin_host_name    = module.grafana.grafana_public_ip
+  origin_path         = "/"
   origin_ip           = module.grafana.grafana_public_ip
+  location            = azurerm_resource_group.main.location
+   
 }
 

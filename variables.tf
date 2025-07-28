@@ -3,7 +3,7 @@
 variable "resource_group_name" {
   description = "Name of the Azure Resource Group."
   type        = string
-  default     = "dge-rg2"
+  default     = "dge-rg"
 }
 
 variable "location" {
@@ -24,13 +24,7 @@ variable "frontdoor_name" {
   default     = "dge-aks"
 }
 
-# variable "domain_name" {
-#   description = "Your custom domain name for Azure Front Door (e.g., 'yourcompany.com')."
-#   type        = string
-#   # IMPORTANT: Replace with your actual domain or remove if not using custom domain initially
-#   # You will need to configure CNAME record for this domain to your Front Door's default hostname.
-#   default     = "yourcustomdomain.com"
-# }
+
 
 variable "common_tags" {
   description = "A map of tags to apply to all resources where applicable."
@@ -40,4 +34,15 @@ variable "common_tags" {
     Project     = "aks-dge"
     Owner       = "DevOps"
   }
+}
+
+variable "kubernetes_version" {
+  description = "Supported Kubernetes version for AKS cluster."
+  type        = string
+  default     = "1.30.0" 
+}
+variable "dns_prefix" {
+  description = "DNS prefix for the AKS cluster."
+  type        = string
+  default     = "dgeaks" 
 }
