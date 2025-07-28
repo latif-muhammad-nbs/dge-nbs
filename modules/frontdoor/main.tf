@@ -1,69 +1,53 @@
-resource "azurerm_frontdoor" "main" {
+resource "azurerm_cdn_frontdoor_profile" "main" {
   name                = var.frontdoor_name
+  sku_name            = "Standard_AzureFrontDoor"
   resource_group_name = var.resource_group_name
+}
 
-  frontend_endpoint {
-    name      = "${var.frontdoor_name}-fe"
-    host_name = "${var.frontdoor_name}.azurefd.net"
+resource "azurerm_cdn_frontdoor_endpoint" "main" {
+  name                     = "${var.frontdoor_name}-endpoint"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
+}
+
+resource "azurerm_cdn_frontdoor_origin_group" "main" {
+  name                     = "${var.frontdoor_name}-og"
+  cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
+
+  session_affinity_enabled = false
+#   restore_traffic_time_to_healed_or_new_endpoint = "OneMinute"
+  load_balancing {
+    additional_latency_in_milliseconds = 0
+    sample_size                        = 4
+    successful_samples_required        = 3
   }
 
-  backend_pool_load_balancing {
-    name = "${var.frontdoor_name}-lb"
-  }
-
-  backend_pool_health_probe {
-    name                = "${var.frontdoor_name}-hp"
-    protocol            = "Https"
+  health_probe {
+    interval_in_seconds = 120
     path                = "/"
-    interval_in_seconds = 30
-  }
-
-  backend_pool {
-    name                = "${var.frontdoor_name}-bp"
-    load_balancing_name = "${var.frontdoor_name}-lb"
-    health_probe_name   = "${var.frontdoor_name}-hp"
-    backend {
-      host_header = "${var.frontdoor_name}.azurefd.net"
-      address     = var.origin_ip
-      http_port   = 80
-      https_port  = 443
-    }
-  }
-
-  routing_rule {
-    name               = "${var.frontdoor_name}-rr"
-    accepted_protocols = ["Http", "Https"]
-    patterns_to_match  = ["/*"]
-    frontend_endpoints = ["${var.frontdoor_name}-fe"]
-
-    forwarding_configuration {
-      backend_pool_name    = "${var.frontdoor_name}-bp"
-      forwarding_protocol  = "MatchRequest"
-    }
+    protocol            = "Https"
+    request_type        = "GET"
   }
 }
 
-# resource "azurerm_web_application_firewall_policy" "main" {
-#   name                = var.waf_policy_name
-#   resource_group_name = var.resource_group_name
-#   location              = var.location
+resource "azurerm_cdn_frontdoor_origin" "main" {
+  name                          = "${var.frontdoor_name}-origin"
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.main.id
+  enabled                       = true
+  host_name                     = var.origin_host_name
+  http_port                     = 80
+  https_port                    = 443
+  certificate_name_check_enabled = false
+}
 
-#   custom_rules {
-#     name      = "BlockSQLInjection"
-#     priority  = 1
-#     rule_type = "MatchRule"
-
-#     match_conditions {
-#       match_variable = "RequestUri"
-#       operator        = "Contains"
-#       value           = "union select"
-#     }
-
-#     action = "Block"
-#   }
-
-#   managed_rules {
-#     type = "DefaultRuleSet"
-#     version = "1.0"
-#   }
-# }
+resource "azurerm_cdn_frontdoor_route" "main" {
+  name                          = "${var.frontdoor_name}-route"
+  cdn_frontdoor_endpoint_id     = azurerm_cdn_frontdoor_endpoint.main.id
+  cdn_frontdoor_origin_group_id = azurerm_cdn_frontdoor_origin_group.main.id
+  cdn_frontdoor_origin_ids      = [azurerm_cdn_frontdoor_origin.main.id]
+#   cdn_frontdoor_profile_id      = azurerm_cdn_frontdoor_profile.main.id
+  supported_protocols           = ["Http","Https"]
+  patterns_to_match             = ["/*"]
+  forwarding_protocol           = "HttpOnly"
+  https_redirect_enabled        = true
+  enabled                       = true
+}

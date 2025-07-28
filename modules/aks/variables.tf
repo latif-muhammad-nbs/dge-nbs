@@ -35,7 +35,18 @@ variable "vm_size" {
 variable "kubernetes_version" {
   description = "The Kubernetes version to use for the AKS cluster (e.g., '1.28.3')."
   type        = string
-  default     = "1.28.3" # Check available versions in your region
+  default     = "1.28.3" 
+}
+
+variable "dns_prefix" {
+  description = "DNS prefix for the AKS cluster."
+  type        = string
+}
+
+variable "agent_vm_size" {
+  description = "The size of the Virtual Machine for the AKS node pool."
+  type        = string
+  default     = "Standard_D2s_v3" 
 }
 
 # Optional: Add variables for AAD integration, networking policies, etc.
