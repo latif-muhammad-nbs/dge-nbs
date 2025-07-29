@@ -4,6 +4,7 @@ resource "azurerm_kubernetes_cluster" "main" {
   resource_group_name = var.resource_group_name
   kubernetes_version  = var.kubernetes_version
   dns_prefix          = var.dns_prefix
+  tags                = var.tags
 
   default_node_pool {
     name       = "default"
@@ -22,16 +23,7 @@ resource "azurerm_kubernetes_cluster" "main" {
     load_balancer_sku  = "standard"
   }
 
-  # Add AAD integration if needed
-  # azure_active_directory_role_based_access_control {
-  #   managed                = true
-  #   azure_rbac_enabled     = true
-  #   # ...
-  # }
 
-  tags = {
-    Environment = "Dev"
-    Project     = "aks-dge"
-    Owner       = "DevOps"
-  }
+
+
 }

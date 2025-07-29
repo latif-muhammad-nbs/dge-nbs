@@ -49,21 +49,8 @@ variable "agent_vm_size" {
   default     = "Standard_D2s_v3" 
 }
 
-# Optional: Add variables for AAD integration, networking policies, etc.
-/*
-variable "enable_aad_integration" {
-  description = "Whether to enable Azure AD integration for AKS."
-  type        = bool
-  default     = true
+variable "tags" {
+  description = "Tags to be applied to resources in this module"
+  type        = map(string)
 }
 
-variable "aad_admin_group_object_id" {
-  description = "Object ID of the Azure AD group that will have admin access to the cluster."
-  type        = string
-  # sensitive   = true # Mark as sensitive if it's an actual secret
-  # validation {
-  #   condition     = var.enable_aad_integration == false || (var.enable_aad_integration && var.aad_admin_group_object_id != "")
-  #   error_message = "aad_admin_group_object_id must be set if enable_aad_integration is true."
-  # }
-}
-*/
