@@ -36,18 +36,9 @@ variable "origin_path" {
   default     = "/"
 }
 
-
-
-
-# Optional: Variables for WAF policy, custom HTTPS, etc.
-/*
-variable "waf_policy_mode" {
-  description = "Mode for the Web Application Firewall policy (Prevention or Detection)."
-  type        = string
-  default     = "Prevention"
-  validation {
-    condition     = contains(["Prevention", "Detection"], var.waf_policy_mode)
-    error_message = "waf_policy_mode must be 'Prevention' or 'Detection'."
-  }
+variable "tags" {
+  description = "Tags to be applied to resources in this module"
+  type        = map(string)
 }
-*/
+
+

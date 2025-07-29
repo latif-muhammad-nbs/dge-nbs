@@ -1,4 +1,3 @@
-# modules/network/variables.tf
 
 variable "resource_group_name" {
   description = "Name of the Azure Resource Group."
@@ -28,4 +27,9 @@ variable "subnet_prefixes" {
 variable "subnet_names" {
   description = "A list of names for the subnets, corresponding to subnet_prefixes."
   type        = list(string)
+}
+
+variable "tags" {
+  description = "Tags to be applied to resources in this module"
+  type        = map(string)
 }

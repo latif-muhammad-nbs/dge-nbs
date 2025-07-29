@@ -6,6 +6,12 @@ variable "kubernetes_namespace" {
   default     = "monitoring"
 }
 
+variable "tags" {
+  description = "Tags to be applied to resources in this module"
+  type        = map(string)
+}
+
+
 # Optional: Variables for Grafana customization
 /*
 variable "grafana_admin_user" {

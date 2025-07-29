@@ -27,6 +27,7 @@ provider "helm" {
 resource "azurerm_resource_group" "main" {
   name     = var.resource_group_name
   location = var.location
+  tags   = var.tags
 }
 
 # Module: Network
@@ -38,7 +39,8 @@ module "network" {
   address_space       = ["10.99.0.0/16"]
   subnet_prefixes     = ["10.99.0.0/24","10.99.20.0/22"]
   subnet_names        = ["aks-subnet","app-subnet"]
- 
+  tags               = var.tags
+
 }
 
 # Module: AKS
@@ -51,7 +53,8 @@ module "aks" {
   dns_prefix              = var.dns_prefix
   vnet_subnet_id          = module.network.subnet_ids["aks-subnet"]
   agent_vm_size           = "Standard_D2s_v3"
-  
+  tags                    = var.tags
+
 }
 
 output "kube_config" {
@@ -63,6 +66,7 @@ output "kube_config" {
 module "grafana" {
   source               = "./modules/grafana"
   kubernetes_namespace = "monitoring"
+  tags                  = var.tags
   providers = {
     kubernetes = kubernetes.aks
     helm       = helm.aks
@@ -79,6 +83,7 @@ module "frontdoor" {
   origin_path         = "/"
   origin_ip           = module.grafana.grafana_public_ip
   location            = azurerm_resource_group.main.location
+  tags                = var.tags
    
 }
 

@@ -26,13 +26,12 @@ variable "frontdoor_name" {
 
 
 
-variable "common_tags" {
-  description = "A map of tags to apply to all resources where applicable."
+variable "tags" {
   type        = map(string)
   default = {
-    Environment = "Development"
-    Project     = "aks-dge"
-    Owner       = "DevOps"
+    Environment = "Dev"
+    Project     = "DGE-NBS"
+    Owner       = "latif"
   }
 }
 

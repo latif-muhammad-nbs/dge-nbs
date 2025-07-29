@@ -2,16 +2,19 @@ resource "azurerm_cdn_frontdoor_profile" "main" {
   name                = var.frontdoor_name
   sku_name            = "Standard_AzureFrontDoor"
   resource_group_name = var.resource_group_name
+  tags = var.tags
 }
 
 resource "azurerm_cdn_frontdoor_endpoint" "main" {
   name                     = "${var.frontdoor_name}-endpoint"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
+  tags = var.tags
 }
 
 resource "azurerm_cdn_frontdoor_origin_group" "main" {
   name                     = "${var.frontdoor_name}-og"
   cdn_frontdoor_profile_id = azurerm_cdn_frontdoor_profile.main.id
+  
 
   session_affinity_enabled = false
 #   restore_traffic_time_to_healed_or_new_endpoint = "OneMinute"
@@ -27,6 +30,8 @@ resource "azurerm_cdn_frontdoor_origin_group" "main" {
     protocol            = "Https"
     request_type        = "GET"
   }
+
+
 }
 
 resource "azurerm_cdn_frontdoor_origin" "main" {
@@ -37,6 +42,8 @@ resource "azurerm_cdn_frontdoor_origin" "main" {
   http_port                     = 80
   https_port                    = 443
   certificate_name_check_enabled = false
+  
+  
 }
 
 resource "azurerm_cdn_frontdoor_route" "main" {
@@ -50,4 +57,6 @@ resource "azurerm_cdn_frontdoor_route" "main" {
   forwarding_protocol           = "HttpOnly"
   https_redirect_enabled        = true
   enabled                       = true
+  
+  
 }
